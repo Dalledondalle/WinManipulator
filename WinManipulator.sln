@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32126.315
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinManipulator.UI", "WinManipulator.UI\WinManipulator.UI.csproj", "{0B55E0C9-BB6C-4A91-AFFE-6F67270A2B05}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinManipulator.Library", "WinManipulator.Library\WinManipulator.Library.csproj", "{42A8F13A-BC97-44E8-BE01-CC6E4106D596}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0B55E0C9-BB6C-4A91-AFFE-6F67270A2B05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B55E0C9-BB6C-4A91-AFFE-6F67270A2B05}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B55E0C9-BB6C-4A91-AFFE-6F67270A2B05}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B55E0C9-BB6C-4A91-AFFE-6F67270A2B05}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42A8F13A-BC97-44E8-BE01-CC6E4106D596}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42A8F13A-BC97-44E8-BE01-CC6E4106D596}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42A8F13A-BC97-44E8-BE01-CC6E4106D596}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42A8F13A-BC97-44E8-BE01-CC6E4106D596}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {78DE6508-C729-46C2-9E7C-8B6B03155D6E}
+	EndGlobalSection
+EndGlobal

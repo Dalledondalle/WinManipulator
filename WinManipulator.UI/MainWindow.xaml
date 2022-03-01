@@ -1,0 +1,75 @@
+﻿<Window x:Class="WinManipulator.UI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WinManipulator.UI"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.ColumnSpan="4" Grid.RowSpan="2">
+            <ComboBox ItemsSource="{Binding AllProcesses}" SelectedItem="{Binding SelectedProcess, Mode=TwoWay}" DisplayMemberPath="ProcessName" >
+            </ComboBox>
+            <StackPanel Orientation="Horizontal">
+                <TextBox Width="120" Text="{Binding ProcessNames}"/>
+                <Button Click="AddAll">Add All With That Name</Button>
+            </StackPanel>
+        </StackPanel>
+        <StackPanel Grid.ColumnSpan="2" Grid.Row="2" Grid.RowSpan="3">
+            <TextBlock>Height</TextBlock>
+            <TextBox Text="{Binding FocusHeight}"></TextBox>
+            <TextBlock>Width</TextBlock>
+            <TextBox Text="{Binding FocusWidth}"></TextBox>
+        </StackPanel>
+        <StackPanel Grid.Column="5" Grid.ColumnSpan="2" Grid.RowSpan="2">
+            <Button Content="Add Process ->" Click="AddProcess"></Button>
+            <Button Content="&lt;- Remove Process" Click="RemoveProcess"></Button>
+        </StackPanel>
+
+        <StackPanel Grid.Column="5" Grid.Row="2" Grid.ColumnSpan="2" Grid.RowSpan="1">
+            <TextBlock Text="{Binding IsRunning}"/>
+        </StackPanel>
+
+        <StackPanel Grid.Column="5" Grid.Row="3" Grid.ColumnSpan="2" Grid.RowSpan="1">
+            <Button Content="Start" Click="Start"></Button>
+        </StackPanel>
+
+        <StackPanel Grid.Column="5" Grid.Row="4" Grid.ColumnSpan="2" Grid.RowSpan="1">
+            <Button Content="Stop" Click="Stop"></Button>
+        </StackPanel>
+
+        <StackPanel Grid.Column="8" Grid.ColumnSpan="4" Grid.RowSpan="11">
+            <ComboBox ItemsSource="{Binding SelectedProcesses}" SelectedItem="{Binding SelectedProcessInUse, Mode=TwoWay}" DisplayMemberPath="ProcessName" >
+            </ComboBox>
+            <Button Content="Bring to foreground" Click="BringToForeground"/>
+        </StackPanel>
+    </Grid>
+</Window>
