@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace WindowManipulator.Library
@@ -30,8 +31,11 @@ namespace WindowManipulator.Library
             DEVMODE devMode = default;
             devMode.dmSize = (short)Marshal.SizeOf(devMode);
             EnumDisplaySettings(null, ENUM_CURRENT_SETTINGS, ref devMode);
+            TaskBarEdge taskbarEdge = TaskBarEdge.Bottom;
+            int taskbarHeight = 0;
+            GetTaskBarInfo(out taskbarEdge, out taskbarHeight);
 
-            ScreenHeight = devMode.dmPelsHeight;
+            ScreenHeight = devMode.dmPelsHeight - taskbarHeight;
             ScreenWidth = devMode.dmPelsWidth;
         }
 
@@ -46,7 +50,7 @@ namespace WindowManipulator.Library
         {
             focusWindowWidth = width;
             focusWindowHeight = height;
-            focusWindowX = ((ScreenWidth - focusWindowWidth) / 2);
+            focusWindowX = (ScreenWidth - focusWindowWidth) / 2;
             secWindowHeight = ScreenHeight - focusWindowHeight;
             UpdateSettings();
         }
@@ -60,16 +64,12 @@ namespace WindowManipulator.Library
             else
                 secWindowWidth = focusWindowWidth;
 
-            TaskBarEdge taskbarEdge = TaskBarEdge.Bottom;
-            int taskbarHeight = 0;
-            GetTaskBarInfo(out taskbarEdge, out taskbarHeight);
-
             //Setup all processes
             for (int i = 0; i < Processes.Count; i++)
             {
                 int x = focusWindowX + (secWindowWidth * i);
                 int y = ScreenHeight - (ScreenHeight - focusWindowHeight);
-                processes[i].SetOutOfFocusSettings(secWindowWidth, secWindowHeight - taskbarHeight, x, y);
+                processes[i].SetOutOfFocusSettings(secWindowWidth, secWindowHeight, x, y);
                 processes[i].SetInFocusSettings(focusWindowWidth, focusWindowHeight, focusWindowX, focusWindowY);
             }
             if (processes.Count > 0) processes[0].IsActive = true;
@@ -80,28 +80,35 @@ namespace WindowManipulator.Library
         {
             var activeProcessId = GetActiveWindowProcessID();
             var activeSetting = processes.FirstOrDefault(x => x.IsActive);
-            if (processes.Any(x => x.Process.Id == activeProcessId))
+            try
             {
-                if (activeSetting is not null && activeProcessId != activeSetting.Process.Id)
+                if (processes.Any(x => x.Process.Id == activeProcessId))
                 {
-                    foreach (var item in processes)
+                    if (activeSetting is not null && activeProcessId != activeSetting.Process.Id)
                     {
-                        if (item.Process.Id == activeProcessId)
+                        foreach (var item in processes)
                         {
-                            item.InFocus();
-                            SetCursorPos(ScreenWidth / 2, focusWindowHeight / 2);
-                            activeSetting = item;
-                        }
-                        else
-                        {
-                            item.OutOfFocus();
+                            if (item.Process.Id == activeProcessId)
+                            {
+                                item.InFocus();
+                                SetCursorPos(ScreenWidth / 2, focusWindowHeight / 2);
+                                activeSetting = item;
+                            }
+                            else
+                            {
+                                item.OutOfFocus();
+                            }
                         }
                     }
+                    if (activeSetting is not null && !activeSetting.IsFocusPositionAndSize())
+                    {
+                        activeSetting.InFocus();
+                    }
                 }
-                if (activeSetting is not null && !activeSetting.IsFocusPositionAndSize())
-                {
-                    activeSetting.InFocus();
-                }
+            }
+            catch
+            {
+                Task.Delay(100);
             }
         }
 
