@@ -30,8 +30,8 @@ namespace WinManipulator.UI
         private Process selectedProcess;
         private ObservableCollection<Process> selectedProcesses;
         private Process selectedProcessInUse;
-        private string focusHeight = "800";
-        private string focusWidth = "1600";
+        private int focusHeight = 800;
+        private int focusWidth = 1600;
         private Settings setting;
         private Task task;
         private Thread thread;
@@ -46,17 +46,19 @@ namespace WinManipulator.UI
         public string IsRunning { get => isRunning; set => isRunning = value; }
         public string FocusHeight
         {
-            get => focusHeight; set
+            get => focusHeight.ToString(); set
             {
+                if (!int.TryParse(value, out focusHeight))
+                    focusHeight = 800;
                 UpdateAll();
-                focusHeight = value;
             }
         }
         public string FocusWidth
         {
-            get => focusWidth; set
+            get => focusWidth.ToString(); set
             {
-                focusWidth = value;
+                if (!int.TryParse(value, out focusWidth))
+                    focusWidth = 1600;
                 UpdateAll();
             }
         }
@@ -76,7 +78,7 @@ namespace WinManipulator.UI
 
         private void UpdateAll()
         {
-            setting.SetFocusWindowSettings(int.Parse(FocusWidth), int.Parse(FocusHeight));
+            setting.SetFocusWindowSettings(focusWidth, focusHeight);
             setting.ClearProcess();
             foreach (var item in SelectedProcesses)
             {
@@ -87,6 +89,19 @@ namespace WinManipulator.UI
         private void BringToForeground(object sender, RoutedEventArgs e)
         {
             setting.BringProcessToForeground(SelectedProcessInUse);
+        }
+
+        private void RefreshProcesses(object sender, RoutedEventArgs e)
+        {
+            AllProcesses = new(Process.GetProcesses());
+            foreach (var item in SelectedProcesses)
+            {
+                if (AllProcesses.Any(x => x.Id == item.Id))
+                {
+                    var t = AllProcesses.First(x => x.Id == item.Id);
+                    AllProcesses.Remove(t);
+                }
+            }
         }
 
         private void AddProcess(object sender, RoutedEventArgs e)
@@ -156,5 +171,50 @@ namespace WinManipulator.UI
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true, CallingConvention = CallingConvention.Winapi)]
         public static extern short GetKeyState(int keyCode);
+
+        private void AddProcess(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                SelectedProcesses.Add(SelectedProcess);
+                foreach (var item in SelectedProcesses)
+                {
+                    if (AllProcesses.Any(x => x == item))
+                        AllProcesses.Remove(item);
+                }
+                UpdateAll();
+            }
+        }
+
+        private void RemoveProcess(object sender, KeyEventArgs e)
+        {
+            if(e.Key == Key.Delete)
+            {
+                AllProcesses = new(Process.GetProcesses());
+                SelectedProcesses.Remove(SelectedProcessInUse);
+            }
+        }
+
+        private void RemoveProcessFromCombo(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                AllProcesses = new(Process.GetProcesses());
+                SelectedProcesses.Remove(SelectedProcessInUse);
+            }
+        }
+
+        private void AddAllProcesses(object sender, KeyEventArgs e)
+        {
+            if(e.Key == Key.Enter)
+            {
+                foreach (var item in Process.GetProcessesByName(ProcessNames))
+                {
+                    if (!SelectedProcesses.Any(x => x.Id == item.Id))
+                        SelectedProcesses.Add(item);
+                }
+                UpdateAll();
+            }
+        }
     }
 }
