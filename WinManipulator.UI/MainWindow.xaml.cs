@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -119,7 +120,8 @@ namespace WinManipulator.UI
                 thread = Thread.CurrentThread;
                 while (true)
                 {
-                    setting.UpdateWindows();
+                    if((((ushort)GetKeyState(0x91)) & 0xffff) != 0)
+                        setting.UpdateWindows();
                     if (cancellationSource.IsCancellationRequested)
                     {
                         return;
@@ -144,5 +146,8 @@ namespace WinManipulator.UI
             }
             UpdateAll();
         }
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true, CallingConvention = CallingConvention.Winapi)]
+        public static extern short GetKeyState(int keyCode);
     }
 }

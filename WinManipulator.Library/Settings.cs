@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Windows.Input;
 
 namespace WindowManipulator.Library
 {
@@ -50,6 +51,7 @@ namespace WindowManipulator.Library
             UpdateSettings();
         }
 
+
         private void UpdateSettings()
         {
 
@@ -87,6 +89,7 @@ namespace WindowManipulator.Library
                         if (item.Process.Id == activeProcessId)
                         {
                             item.InFocus();
+                            SetCursorPos(ScreenWidth / 2, focusWindowHeight / 2);
                         }
                         else
                         {
@@ -295,5 +298,8 @@ namespace WindowManipulator.Library
                     break;
             }
         }
+
+        [DllImport("user32.dll")]
+        static extern bool SetCursorPos(int X, int Y);
     }
 }
