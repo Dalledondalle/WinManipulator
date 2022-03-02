@@ -90,6 +90,7 @@ namespace WindowManipulator.Library
                         {
                             item.InFocus();
                             SetCursorPos(ScreenWidth / 2, focusWindowHeight / 2);
+                            activeSetting = item;
                         }
                         else
                         {
@@ -97,7 +98,10 @@ namespace WindowManipulator.Library
                         }
                     }
                 }
-
+                if (activeSetting is not null && !activeSetting.IsFocusPositionAndSize())
+                {
+                    activeSetting.InFocus();
+                }
             }
         }
 

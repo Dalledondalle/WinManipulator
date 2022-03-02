@@ -39,7 +39,9 @@ namespace WinManipulator.UI
         private CancellationToken cancellationToken;
         private string isRunning;
         private string processNames;
+        private bool scrollLockIsActive;
 
+        public bool ScrollLockIsActive { get => scrollLockIsActive; set => scrollLockIsActive = value; }
         public string ProcessNames { get => processNames; set => processNames = value; }
         public string IsRunning { get => isRunning; set => isRunning = value; }
         public string FocusHeight
@@ -120,7 +122,12 @@ namespace WinManipulator.UI
                 thread = Thread.CurrentThread;
                 while (true)
                 {
-                    if((((ushort)GetKeyState(0x91)) & 0xffff) != 0)
+                    if ((((ushort)GetKeyState(0x91)) & 0xffff) != 0 && !ScrollLockIsActive)
+                        ScrollLockIsActive = true;
+                    else if ((((ushort)GetKeyState(0x91)) & 0xffff) == 0 && ScrollLockIsActive)
+                        scrollLockIsActive = false;
+
+                    if (ScrollLockIsActive)
                         setting.UpdateWindows();
                     if (cancellationSource.IsCancellationRequested)
                     {

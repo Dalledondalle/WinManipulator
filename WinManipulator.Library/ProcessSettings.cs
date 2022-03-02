@@ -41,13 +41,13 @@ namespace WindowManipulator.Library
         }
         public void InFocus()
         {
-            SetWindowPos(Process.MainWindowHandle, HWND_TOP, inFocusX, inFocusY, inFocusWidth, inFocusHeight, 0);
             IsActive = true;
+            SetWindowPos(Process.MainWindowHandle, HWND_TOP, inFocusX, inFocusY, inFocusWidth, inFocusHeight, 0);
         }
         public void OutOfFocus()
         {
-            SetWindowPos(Process.MainWindowHandle, HWND_TOP, outOfFocusX, outOfFocusY, outOfFocusWidth, outOfFocusHeight, 0);
             IsActive = false;
+            SetWindowPos(Process.MainWindowHandle, HWND_TOP, outOfFocusX, outOfFocusY, outOfFocusWidth, outOfFocusHeight, 0);
         }
         private void SetWindowSettings(int width, int height, int xPosition, int yPosition)
         {
@@ -64,9 +64,17 @@ namespace WindowManipulator.Library
             SetForegroundWindow(handle);
         }
 
-
+        public struct Rect
+        {
+            public int Left { get; set; }
+            public int Top { get; set; }
+            public int Right { get; set; }
+            public int Bottom { get; set; }
+        }
         [DllImport("user32.dll")]
         static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
+        [DllImport("user32.dll")]
+        public static extern bool GetWindowRect(IntPtr hwnd, ref Rect rectangle);
 
         const int SW_RESTORE = 9;
 
@@ -76,5 +84,13 @@ namespace WindowManipulator.Library
         private static extern bool ShowWindow(IntPtr handle, int nCmdShow);
         [System.Runtime.InteropServices.DllImport("User32.dll")]
         private static extern bool IsIconic(IntPtr handle);
+
+        public bool IsFocusPositionAndSize()
+        {
+            IntPtr handle = Process.MainWindowHandle;
+            Rect window = new();
+            GetWindowRect(handle, ref window);
+            return inFocusX == window.Left && inFocusY == window.Top && inFocusWidth == (window.Right - window.Left) && inFocusHeight == (window.Bottom - window.Top);
+        }
     }
 }
