@@ -22,7 +22,7 @@ namespace WinManipulator.FocusBar
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
         private ObservableCollection<Process> allProcesses;
         private Process selectedProcess;
@@ -32,7 +32,15 @@ namespace WinManipulator.FocusBar
         private int focusWidth = 1600;
         private bool scrollLockIsActive;
         private string processNames;
-
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = "")
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+            field = value;
+            OnPropertyChanged(propertyName);
+            return true;
+        }
         public string FocusHeight
         {
             get => focusHeight.ToString(); set
@@ -55,8 +63,8 @@ namespace WinManipulator.FocusBar
         public bool ScrollLockIsActive { get => scrollLockIsActive; set => scrollLockIsActive = value; }
         public ObservableCollection<Process> SelectedProcesses { get => selectedProcesses; set => selectedProcesses = value; }
         public ObservableCollection<Process> AllProcesses { get => allProcesses; set => allProcesses = value; }
-        public Process SelectedProcess { get => selectedProcess; set => selectedProcess = value; }
-        public Process SelectedProcessInUse { get => selectedProcessInUse; set => selectedProcessInUse = value; }
+        public Process SelectedProcess { get => selectedProcess; set => SetField(ref selectedProcess, value); }
+        public Process SelectedProcessInUse { get => selectedProcessInUse; set => SetField(ref selectedProcessInUse, value); }
         Bar Bar { get; set; } = new();
         public MainWindow()
         {

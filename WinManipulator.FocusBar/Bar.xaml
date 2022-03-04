@@ -12,6 +12,8 @@
         <ListBox ItemsSource="{Binding ProcessesToWatch}" 
                  ScrollViewer.VerticalScrollBarVisibility="Hidden" 
                   ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                 SelectionChanged="SelectProcess"
+                 Padding="0"
                  >
             <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>

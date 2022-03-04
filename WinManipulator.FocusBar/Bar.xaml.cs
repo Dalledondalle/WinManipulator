@@ -15,6 +15,7 @@ using System.IO;
 using System.Windows.Interop;
 using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
+using System.Windows.Controls;
 
 namespace WinManipulator.FocusBar
 {
@@ -32,6 +33,7 @@ namespace WinManipulator.FocusBar
         private int windowWidth;
 
         public ObservableCollection<ProcessToWatch> ProcessesToWatch { get; set; } = new();
+        public ProcessToWatch ActiveProcess { get; set; }
         public PositionAndSize Workarea { get => workarea; private set => workarea = value; }
         public PositionAndSize BarSizeAndPosition { get => barSizeAndPosition; private set => barSizeAndPosition = value; }
         public int WindowHeight { get => windowHeight; set => windowHeight = value; }
@@ -74,10 +76,11 @@ namespace WinManipulator.FocusBar
 
                     var bm = CaptureScreenshot.OfProcess(item);
 
-                    ProcessesToWatch.Add(new() { Process = item, ImageSource = bm, Height = barSizeAndPosition.height, Width = (barSizeAndPosition.width / processes.Length) - 12 });
+                    ProcessesToWatch.Add(new() { Process = item, ImageSource = bm, Height = barSizeAndPosition.height, Width = (barSizeAndPosition.width / processes.Length) - 20 });
                 }));
                 dp.Wait();
             }
+            ActiveProcess = ProcessesToWatch.Last();
         }
         private BitmapSource DefaultBitmap()
         {
@@ -91,7 +94,16 @@ namespace WinManipulator.FocusBar
             return img;
         }
 
-
+        private void SelectProcess(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            var t = (sender as ListBox).SelectedItem as ProcessToWatch;
+            if (t is not null)
+            {
+                ActiveProcess.ImageSource = CaptureScreenshot.OfProcess(ActiveProcess.Process);
+                ProcessManagement.BringProcessToForeground(t.Process);
+                ActiveProcess = t;
+            }
+        }
     }
 
     public struct PositionAndSize
@@ -159,7 +171,7 @@ namespace WinManipulator.FocusBar
                     throw new Exception();
                 }
 
-                result = Image.FromHbitmap(bitmap);
+                result = System.Drawing.Image.FromHbitmap(bitmap);
             }
             finally
             {
