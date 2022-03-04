@@ -1,0 +1,70 @@
+﻿<Window x:Class="WinManipulator.FocusBar.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WinManipulator.FocusBar"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="480" Width="350">
+
+        <Grid>
+            <StackPanel VerticalAlignment="Top">
+                <StackPanel Height="232">
+                    <StackPanel Grid.ColumnSpan="4" Grid.RowSpan="3">
+                        <Button Margin="4,4,4,0" Content="Refresh Processes" Click="RefreshProcesses"></Button>
+                        <DockPanel Margin="2">
+                            <ComboBox Margin="2" MinWidth="120" ItemsSource="{Binding AllProcesses}" SelectedItem="{Binding SelectedProcess, Mode=TwoWay}" KeyDown="AddProcess" DisplayMemberPath="ProcessName">                              
+                            </ComboBox>
+                            <Button Margin="2" Content="Add Process" Click="AddProcess"></Button>
+                        </DockPanel>
+                        <DockPanel Margin="2" >
+                            <TextBox Margin="2" MinWidth="120" Text="{Binding ProcessNames, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" KeyDown="AddAllProcesses" />
+                            <Button Margin="2" Click="AddAll">Add All With That Name</Button>
+                        </DockPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.ColumnSpan="4" Grid.Row="3" Grid.RowSpan="3">
+                        <TextBlock Margin="4,2,2,0">Height</TextBlock>
+                        <DockPanel Margin="2" >
+                            <TextBox Margin="2" MinWidth="120" Text="{Binding FocusHeight}"></TextBox>
+                        <Button Margin="2" Content="Start" Click="OpenBar"></Button>
+                        </DockPanel>
+                        <TextBlock Margin="4,2,2,0">Width</TextBlock>
+                        <DockPanel Margin="2">
+                            <TextBox Margin="2" MinWidth="120" Text="{Binding FocusWidth}"></TextBox>
+                            <Button Margin="2" Content="Stop" Click="CloseBar"></Button>
+                        </DockPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="6" Grid.ColumnSpan="4" Grid.RowSpan="2">
+                        <DockPanel  Margin="2" >
+                            <ComboBox Margin="2" MinWidth="120" ItemsSource="{Binding SelectedProcesses}" SelectedItem="{Binding SelectedProcessInUse, Mode=TwoWay}" DisplayMemberPath="ProcessName" KeyDown="RemoveProcessFromCombo">
+                            </ComboBox>
+                            <Button Margin="2" Content="Remove Process" Click="RemoveProcess"></Button>
+                        </DockPanel>
+                        <Button Margin="4,0,4,0" Content="Bring to foreground" Click="BringToForeground"/>
+                    </StackPanel>
+                </StackPanel>
+                <ListView Margin="4,0,4,0" ItemsSource="{Binding SelectedProcesses}" Height="200" SelectedItem="{Binding SelectedProcessInUse, Mode=TwoWay}" KeyDown="RemoveProcess">
+                    <ListView.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform/>
+                            <SkewTransform AngleX="0"/>
+                            <RotateTransform/>
+                            <TranslateTransform X="0"/>
+                        </TransformGroup>
+                    </ListView.RenderTransform>
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Name" Width="120" DisplayMemberBinding="{Binding ProcessName}" />
+                            <GridViewColumn Header="Id" Width="60" DisplayMemberBinding="{Binding Id}" />
+                            <GridViewColumn Header="Window Title" Width="150" DisplayMemberBinding="{Binding MainWindowTitle}" />
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </StackPanel>
+
+
+        </Grid>
+
+</Window>
