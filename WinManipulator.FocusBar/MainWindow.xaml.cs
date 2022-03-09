@@ -32,6 +32,9 @@ namespace WinManipulator.FocusBar
         private int focusWidth = 1600;
         private bool scrollLockIsActive;
         private string processNames;
+        private bool transparent = true;
+        private bool onTop = true;
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = "")
@@ -41,6 +44,8 @@ namespace WinManipulator.FocusBar
             OnPropertyChanged(propertyName);
             return true;
         }
+        public bool OnTop { get => onTop; set => SetField(ref onTop, value); }
+        public bool Transparent { get => transparent; set => SetField(ref transparent, value); }
         public string FocusHeight
         {
             get => focusHeight.ToString(); set
@@ -82,6 +87,8 @@ namespace WinManipulator.FocusBar
             positionAndSize.height = focusHeight;
             positionAndSize.width = focusWidth;
             Bar.Setup(positionAndSize, SelectedProcesses.ToArray());
+            Bar.Transparent = Transparent;
+            Bar.OnTop = OnTop;
             Bar.Show();
         }
 
@@ -194,6 +201,11 @@ namespace WinManipulator.FocusBar
                     AllProcesses.Remove(t);
                 }
             }
+        }
+
+        private void CheckBoxHandler(object sender, RoutedEventArgs e)
+        {
+            Transparent = !Transparent;
         }
     }
 

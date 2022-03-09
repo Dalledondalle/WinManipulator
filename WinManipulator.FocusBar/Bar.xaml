@@ -6,15 +6,29 @@
         xmlns:local="clr-namespace:WinManipulator.FocusBar"
         mc:Ignorable="d"
         WindowStyle="None"
+        AllowsTransparency="True"
         ShowInTaskbar="False"
-        Title="Bar" Height="200" Width="1000">
-    <Grid>
+        Title="Bar" Height="200" Width="1000"
+        Background="{Binding TransparentColor, Mode=TwoWay}"
+        BorderBrush="{Binding TransparentColor, Mode=TwoWay}"
+        BorderThickness="0"
+        >
+    <Grid>        
         <ListBox ItemsSource="{Binding ProcessesToWatch}" 
+                 SelectedItem="{Binding SelectedProcess, Mode=TwoWay}"
+                 VerticalAlignment="Center"
+                 HorizontalAlignment="Center"
                  ScrollViewer.VerticalScrollBarVisibility="Hidden" 
-                  ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                 ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                  SelectionChanged="SelectProcess"
                  Padding="0"
-                 >
+                 Background="{Binding TransparentColor, Mode=TwoWay}"
+                 BorderBrush="{Binding TransparentColor, Mode=TwoWay}"
+                 BorderThickness="0"      
+                 VirtualizingStackPanel.VirtualizationMode="Recycling"
+                 IsTabStop="False"
+                 Focusable="False"
+                 >            
             <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>
                     <VirtualizingStackPanel IsItemsHost="True" Orientation="Horizontal"/>
@@ -22,9 +36,9 @@
             </ListBox.ItemsPanel>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Grid Width="{Binding Width}" Height="{Binding Height}">
-                        <Image Source="{Binding ImageSource}"  HorizontalAlignment="Center" VerticalAlignment="Top"></Image>
-                        <Label Foreground="Red" Content="{Binding Process.MainWindowTitle}" HorizontalAlignment="Center" VerticalAlignment="Top" />
+                    <Grid Width="{Binding Width}" Height="{Binding Height}" Background="{Binding TransparentColor, Mode=TwoWay}" Margin="-1" >
+                        <Image Height="{Binding ImageHeight, Mode=TwoWay}" Source="{Binding ImageSource}"  HorizontalAlignment="Center" VerticalAlignment="Center"></Image>
+                        <!--<Label Foreground="Red" Content="{Binding Process.MainWindowTitle}" HorizontalAlignment="Center" VerticalAlignment="Top" />-->
                     </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>

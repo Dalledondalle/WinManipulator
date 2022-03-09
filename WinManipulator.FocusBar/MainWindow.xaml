@@ -24,13 +24,21 @@
                     </StackPanel>
 
                     <StackPanel Grid.ColumnSpan="4" Grid.Row="3" Grid.RowSpan="3">
-                        <TextBlock Margin="4,2,2,0">Height</TextBlock>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Width="120" Margin="4,2,2,0">Height</TextBlock>
+                        <TextBlock Margin="4,2,2,0">Transparent</TextBlock>
+                        <CheckBox IsChecked="{Binding Transparent, Mode=TwoWay}" Margin="4,4,2,0"></CheckBox>
+                    </StackPanel>
                         <DockPanel Margin="2" >
                             <TextBox Margin="2" MinWidth="120" Text="{Binding FocusHeight}"></TextBox>
                         <Button Margin="2" Content="Start" Click="OpenBar"></Button>
                         </DockPanel>
-                        <TextBlock Margin="4,2,2,0">Width</TextBlock>
-                        <DockPanel Margin="2">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Width="120" Margin="4,2,2,0">Width</TextBlock>
+                        <TextBlock Margin="4,2,2,0">On Top</TextBlock>
+                        <CheckBox IsChecked="{Binding OnTop, Mode=TwoWay}" Margin="4,4,2,0"></CheckBox>
+                    </StackPanel>
+                    <DockPanel Margin="2">
                             <TextBox Margin="2" MinWidth="120" Text="{Binding FocusWidth}"></TextBox>
                             <Button Margin="2" Content="Stop" Click="CloseBar"></Button>
                         </DockPanel>

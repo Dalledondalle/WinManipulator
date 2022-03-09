@@ -16,13 +16,15 @@ using System.Windows.Interop;
 using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Controls;
+using System.Threading;
+using System.Windows.Input;
 
 namespace WinManipulator.FocusBar
 {
     /// <summary>
     /// Interaction logic for Bar.xaml
     /// </summary>
-    public partial class Bar : Window
+    public partial class Bar : Window, INotifyPropertyChanged
     {
         private int taskbarHeight = 0;
         private int desktopHeight = 0;
@@ -31,20 +33,80 @@ namespace WinManipulator.FocusBar
         private PositionAndSize workarea;
         private int windowHeight;
         private int windowWidth;
+        private int imageHeight;
+        private ProcessToWatch selectedProcess;
+        private bool transparent;
+        private System.Windows.Media.Brush transparentColor = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 255, 255, 255));
+        private bool onTop = true;
 
+        public System.Windows.Media.Brush TransparentColor { get => transparentColor; set => SetField(ref transparentColor, value); }
+        public event PropertyChangedEventHandler PropertyChanged;
+        public bool OnTop { get => onTop; set => onTop = value; }
+        public bool Transparent
+        {
+            get { return transparent; }
+            set
+            {
+                if (value == true)
+                    TransparentColor = new SolidColorBrush(System.Windows.Media.Color.FromArgb(0, 0, 0, 0));
+                else
+                    TransparentColor = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 255, 255, 255));
+                SetField(ref transparent, value);
+            }
+        }
         public ObservableCollection<ProcessToWatch> ProcessesToWatch { get; set; } = new();
+        public ProcessToWatch SelectedProcess { get => selectedProcess; set => SetField(ref selectedProcess, value); }
+        public int ImageHeight { get => imageHeight; set => SetField(ref imageHeight, value); }
         public ProcessToWatch ActiveProcess { get; set; }
         public PositionAndSize Workarea { get => workarea; private set => workarea = value; }
         public PositionAndSize BarSizeAndPosition { get => barSizeAndPosition; private set => barSizeAndPosition = value; }
         public int WindowHeight { get => windowHeight; set => windowHeight = value; }
         public int WindowWidth { get => windowWidth; set => windowWidth = value; }
+        protected void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = "")
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+            field = value;
+            OnPropertyChanged(propertyName);
+            return true;
+        }
+        Thread Thread { get; set; }
         public Bar()
         {
             DataContext = this;
             InitializeComponent();
             Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
+            Thread = new(KeyboardDown);
+            Thread.SetApartmentState(ApartmentState.STA);
+            Thread.Start();
         }
-        
+
+        void KeyboardDown()
+        {
+            while (true)
+            {
+                if (Keyboard.GetKeyStates(Key.LeftCtrl) == KeyStates.Down)
+                {
+                    if (ProcessesToWatch.Any())
+                    {
+                        Dispatcher.Invoke(new Action(() =>
+                        {
+                            int i = ProcessesToWatch.IndexOf(ActiveProcess);
+                            i++;
+                            if (i >= ProcessesToWatch.Count) i = 0;
+                            var t = ProcessesToWatch[i];
+                            if (t is not null)
+                            {
+                                ActiveProcess.ImageSource = CaptureScreenshot.OfProcess(ActiveProcess.Process);
+                                ProcessManagement.BringProcessToForeground(t.Process);
+                                ActiveProcess = t;
+                            }
+                            SelectedProcess = null;
+                        }));
+                    }
+                }
+            }
+        }
 
         public void Setup(PositionAndSize position, Process[] processes)
         {
@@ -64,22 +126,18 @@ namespace WinManipulator.FocusBar
             this.Width = BarSizeAndPosition.width;
             this.Height = BarSizeAndPosition.height;
             foreach (var item in processes)
-            {                
-                var dp = this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    Task t = Task.Run(() =>
-                    {
-                        ProcessManagement.SetWindowOfProcessPositionAndSize(item, Workarea);
-                        ProcessManagement.BringProcessToForeground(item);
-                    });
-                    t.Wait();
-
-                    var bm = CaptureScreenshot.OfProcess(item);
-
-                    ProcessesToWatch.Add(new() { Process = item, ImageSource = bm, Height = barSizeAndPosition.height, Width = (barSizeAndPosition.width / processes.Length) - 20 });
-                }));
-                dp.Wait();
+            {
+                ProcessManagement.SetWindowOfProcessPositionAndSize(item, Workarea);
             }
+
+            foreach (var item in processes)
+            {
+                ProcessManagement.BringProcessToForeground(item);
+                var bm = CaptureScreenshot.OfProcess(item);
+                ProcessesToWatch.Add(new() { Process = item, ImageSource = bm, Height = barSizeAndPosition.height, Width = (barSizeAndPosition.width / processes.Length) - 20 });
+            }
+            this.Activate();
+            Topmost = OnTop;
             ActiveProcess = ProcessesToWatch.Last();
         }
         private BitmapSource DefaultBitmap()
@@ -103,7 +161,10 @@ namespace WinManipulator.FocusBar
                 ProcessManagement.BringProcessToForeground(t.Process);
                 ActiveProcess = t;
             }
+            SelectedProcess = null;
         }
+
+
     }
 
     public struct PositionAndSize
