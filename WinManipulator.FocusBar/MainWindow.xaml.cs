@@ -17,6 +17,7 @@ using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using System.Windows.Controls;
+using System.Threading;
 
 namespace WinManipulator.FocusBar
 {
@@ -35,6 +36,7 @@ namespace WinManipulator.FocusBar
         private string processNames;
         private bool transparent = true;
         private bool onTop = true;
+        private Test test;
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -72,6 +74,7 @@ namespace WinManipulator.FocusBar
         public Process SelectedProcess { get => selectedProcess; set => SetField(ref selectedProcess, value); }
         public Process SelectedProcessInUse { get => selectedProcessInUse; set => SetField(ref selectedProcessInUse, value); }
         Bar Bar { get; set; } = new();
+
         public MainWindow()
         {
             DataContext = this;
@@ -123,7 +126,14 @@ namespace WinManipulator.FocusBar
 
         private void CloseBar(object sender, RoutedEventArgs e)
         {
-            Bar.Close();
+            if (test is null)
+                test = new(SelectedProcesses[0], new PositionAndSize() { x= 0, y= 0});
+            else
+                test.Add(SelectedProcesses[test.Pages.Count], new PositionAndSize() { x = test.Pages.Count * 10, y = test.Pages.Count * 10 });
+            
+            test.Show();
+
+            //Bar.Close();
         }
 
         private void BringToForeground(object sender, RoutedEventArgs e)
