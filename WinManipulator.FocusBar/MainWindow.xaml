@@ -18,7 +18,7 @@
                             <Button Margin="2" Content="Add Process" Click="AddProcess"></Button>
                         </DockPanel>
                         <DockPanel Margin="2" >
-                            <TextBox Margin="2" MinWidth="120" Text="{Binding ProcessNames, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" KeyDown="AddAllProcesses" />
+                        <TextBox Margin="2" MinWidth="120" Text="{Binding ProcessNames, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" KeyDown="AddAllProcesses" PreviewMouseLeftButtonDown="SelectivelyIgnoreMouseButton" MouseDoubleClick="TextBox_GotFocus" GotKeyboardFocus="TextBox_GotFocus"/>
                             <Button Margin="2" Click="AddAll">Add All With That Name</Button>
                         </DockPanel>
                     </StackPanel>
@@ -30,7 +30,7 @@
                         <CheckBox IsChecked="{Binding Transparent, Mode=TwoWay}" Margin="4,4,2,0"></CheckBox>
                     </StackPanel>
                         <DockPanel Margin="2" >
-                            <TextBox Margin="2" MinWidth="120" Text="{Binding FocusHeight}"></TextBox>
+                        <TextBox Margin="2" MinWidth="120" Text="{Binding FocusHeight}"  PreviewMouseLeftButtonDown="SelectivelyIgnoreMouseButton" MouseDoubleClick="TextBox_GotFocus" GotKeyboardFocus="TextBox_GotFocus"></TextBox>
                         <Button Margin="2" Content="Start" Click="OpenBar"></Button>
                         </DockPanel>
                     <StackPanel Orientation="Horizontal">
@@ -39,7 +39,7 @@
                         <CheckBox IsChecked="{Binding OnTop, Mode=TwoWay}" Margin="4,4,2,0"></CheckBox>
                     </StackPanel>
                     <DockPanel Margin="2">
-                            <TextBox Margin="2" MinWidth="120" Text="{Binding FocusWidth}"></TextBox>
+                        <TextBox Margin="2" MinWidth="120" Text="{Binding FocusWidth}" PreviewMouseLeftButtonDown="SelectivelyIgnoreMouseButton" MouseDoubleClick="TextBox_GotFocus" GotKeyboardFocus="TextBox_GotFocus"></TextBox>
                             <Button Margin="2" Content="Stop" Click="CloseBar"></Button>
                         </DockPanel>
                     </StackPanel>

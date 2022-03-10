@@ -16,6 +16,7 @@ using System.Windows.Interop;
 using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using System.Windows.Controls;
 
 namespace WinManipulator.FocusBar
 {
@@ -92,14 +93,28 @@ namespace WinManipulator.FocusBar
             Bar.Show();
         }
 
-        //private void UpdateBar()
-        //{
-        //    PositionAndSize positionAndSize = new PositionAndSize();
-        //    positionAndSize.height = focusHeight;
-        //    positionAndSize.width = focusWidth;
-        //    Bar.Setup(positionAndSize, SelectedProcesses.ToArray());
-        //    Bar.Show();
-        //}
+        private void TextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            (sender as TextBox).SelectAll();
+        }
+
+        private void TextBox_GotFocus(object sender, MouseButtonEventArgs e)
+        {
+            (sender as TextBox).SelectAll();
+        }
+
+        private void SelectivelyIgnoreMouseButton(object sender, MouseButtonEventArgs e)
+        {
+            TextBox tb = (sender as TextBox);
+            if (tb != null)
+            {
+                if (!tb.IsKeyboardFocusWithin)
+                {
+                    e.Handled = true;
+                    tb.Focus();
+                }
+            }
+        }
 
         protected void MainWindow_Closed(object sender, EventArgs args)
         {
@@ -207,6 +222,8 @@ namespace WinManipulator.FocusBar
         {
             Transparent = !Transparent;
         }
+
+
     }
 
     public static class ProcessManagement
@@ -214,9 +231,9 @@ namespace WinManipulator.FocusBar
         static readonly IntPtr HWND_TOP = new IntPtr(0);
         internal static void BringProcessToForeground(Process process)
         {
-                if (process is not null)
-                    if (Process.GetProcesses().Any(p => p.Id == process.Id))
-                        BringProcessToFront(Process.GetProcesses().First(p => p.Id == process.Id));
+            if (process is not null)
+                if (Process.GetProcesses().Any(p => p.Id == process.Id))
+                    BringProcessToFront(Process.GetProcesses().First(p => p.Id == process.Id));
         }
         static void BringProcessToFront(Process process)
         {
