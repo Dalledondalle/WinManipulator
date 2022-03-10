@@ -71,41 +71,95 @@ namespace WinManipulator.FocusBar
             return true;
         }
         Thread Thread { get; set; }
+        private GlobalKeyboardHook _globalKeyboardHook;
         public Bar()
         {
             DataContext = this;
             InitializeComponent();
             Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
-            Thread = new(KeyboardDown);
-            Thread.SetApartmentState(ApartmentState.STA);
-            Thread.Start();
+            SetupKeyboardHooks();
         }
 
-        void KeyboardDown()
+        public void SetupKeyboardHooks()
         {
-            while (true)
+            _globalKeyboardHook = new GlobalKeyboardHook();
+            _globalKeyboardHook.KeyboardPressed += OnKeyPressed;
+        }
+
+        private void OnKeyPressed(object sender, GlobalKeyboardHookEventArgs e)
+        {
+            int keycode = e.KeyboardData.VirtualCode;
+            if (!(keycode == (int)VKeys.SPACE || keycode == (int)VKeys.KEY_Z))
+                return;
+            if (e.KeyboardState != GlobalKeyboardHook.KeyboardState.KeyDown)
+                return;
+
+            var winKey = Keyboard.GetKeyStates(Key.LWin);
+            if (winKey == KeyStates.None)
+                return;
+
+            switch (keycode)
             {
-                if (Keyboard.GetKeyStates(Key.LeftCtrl) == KeyStates.Down)
-                {
-                    if (ProcessesToWatch.Any())
-                    {
-                        Dispatcher.Invoke(new Action(() =>
-                        {
-                            int i = ProcessesToWatch.IndexOf(ActiveProcess);
-                            i++;
-                            if (i >= ProcessesToWatch.Count) i = 0;
-                            var t = ProcessesToWatch[i];
-                            if (t is not null)
-                            {
-                                ActiveProcess.ImageSource = CaptureScreenshot.OfProcess(ActiveProcess.Process);
-                                ProcessManagement.BringProcessToForeground(t.Process);
-                                ActiveProcess = t;
-                            }
-                            SelectedProcess = null;
-                        }));
-                    }
-                }
+                case (int)VKeys.SPACE:
+                    NextWindowInList();
+                    break;
+                case (int)VKeys.KEY_Z:
+                    PreviousWindowInList();
+                    break;
+                default:
+                    break;
             }
+            e.Handled = true;
+        }
+
+        void PreviousWindowInList()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                if (ProcessesToWatch.Any())
+                {
+
+                    int i = ProcessesToWatch.IndexOf(ActiveProcess);
+                    i--;
+                    if (i < 0) i = ProcessesToWatch.Count - 1;
+                    var t = ProcessesToWatch[i];
+                    if (t is not null)
+                    {
+                        ActiveProcess.ImageSource = CaptureScreenshot.OfProcess(ActiveProcess.Process);
+                        ProcessManagement.BringProcessToForeground(t.Process);
+                        ActiveProcess = t;
+                    }
+                    SelectedProcess = null;
+                }
+            });
+        }
+
+        void NextWindowInList()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                if (ProcessesToWatch.Any())
+                {
+
+                    int i = ProcessesToWatch.IndexOf(ActiveProcess);
+                    i++;
+                    if (i >= ProcessesToWatch.Count) i = 0;
+                    var t = ProcessesToWatch[i];
+                    if (t is not null)
+                    {
+                        ActiveProcess.ImageSource = CaptureScreenshot.OfProcess(ActiveProcess.Process);
+                        ProcessManagement.BringProcessToForeground(t.Process);
+                        ActiveProcess = t;
+                    }
+                    SelectedProcess = null;
+                }
+            });
+        }
+
+
+        public void Dispose()
+        {
+            _globalKeyboardHook?.Dispose();
         }
 
         public void Setup(PositionAndSize position, Process[] processes)
@@ -247,6 +301,7 @@ namespace WinManipulator.FocusBar
         public static BitmapSource OfProcess(Process process)
         {
             var bm = CaptureScreenshot.CaptureWindow(process.MainWindowHandle);
+            bm.SetResolution(640, 480);
             var source = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(bm.GetHbitmap(),
                         IntPtr.Zero,
                         Int32Rect.Empty,

@@ -36,8 +36,8 @@
             </ListBox.ItemsPanel>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Grid Width="{Binding Width}" Height="{Binding Height}" Background="{Binding TransparentColor, Mode=TwoWay}" Margin="-1" >
-                        <Image Height="{Binding ImageHeight, Mode=TwoWay}" Source="{Binding ImageSource}"  HorizontalAlignment="Center" VerticalAlignment="Center"></Image>
+                    <Grid Width="{Binding Width}" Height="{Binding Height}" Margin="-1" >
+                        <Image Source="{Binding ImageSource}"  HorizontalAlignment="Center" VerticalAlignment="Center"></Image>
                         <!--<Label Foreground="Red" Content="{Binding Process.MainWindowTitle}" HorizontalAlignment="Center" VerticalAlignment="Top" />-->
                     </Grid>
                 </DataTemplate>
