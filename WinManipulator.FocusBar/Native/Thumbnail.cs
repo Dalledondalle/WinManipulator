@@ -26,7 +26,7 @@ namespace WinManipulator.FocusBar
         Rect _targetRect;
         public int Height { get; set; }
         public int Width { get; set; }
-        readonly WindowInteropHelper _wih;
+        //readonly WindowInteropHelper _wih;
         public Thumbnail(string ProcessName, int Height, int Width)
         {
             this.Height = Height;

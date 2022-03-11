@@ -30,13 +30,12 @@ namespace WinManipulator.FocusBar
         private Process selectedProcess;
         private ObservableCollection<Process> selectedProcesses;
         private Process selectedProcessInUse;
-        private int focusHeight = 800;
-        private int focusWidth = 1600;
-        private bool scrollLockIsActive;
+        private int focusHeight = 1080;
+        private int focusWidth = 2440;
         private string processNames;
         private bool transparent = true;
         private bool onTop = true;
-        private Test test;
+        private Bar bar;
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -54,8 +53,7 @@ namespace WinManipulator.FocusBar
             get => focusHeight.ToString(); set
             {
                 if (!int.TryParse(value, out focusHeight))
-                    focusHeight = 800;
-                //UpdateBar();
+                    focusHeight = 1080;
             }
         }
         public string FocusWidth
@@ -63,51 +61,43 @@ namespace WinManipulator.FocusBar
             get => focusWidth.ToString(); set
             {
                 if (!int.TryParse(value, out focusWidth))
-                    focusWidth = 1600;
-                //UpdateBar();
+                    focusWidth = 2440;
             }
         }
         public string ProcessNames { get => processNames; set => processNames = value; }
-        public bool ScrollLockIsActive { get => scrollLockIsActive; set => scrollLockIsActive = value; }
         public ObservableCollection<Process> SelectedProcesses { get => selectedProcesses; set => selectedProcesses = value; }
         public ObservableCollection<Process> AllProcesses { get => allProcesses; set => allProcesses = value; }
         public Process SelectedProcess { get => selectedProcess; set => SetField(ref selectedProcess, value); }
         public Process SelectedProcessInUse { get => selectedProcessInUse; set => SetField(ref selectedProcessInUse, value); }
-        Bar Bar { get; set; } = new();
 
         public MainWindow()
         {
-            DataContext = this;
+            bar = new();
             SelectedProcesses = new();
             AllProcesses = new(Process.GetProcesses().Where(x => x.MainWindowTitle.Any()));
             SelectedProcess = AllProcesses.First();
             InitializeComponent();
+            DataContext = this;
             this.Closed += new EventHandler(MainWindow_Closed);
         }
 
         private void OpenBar(object sender, RoutedEventArgs e)
         {
-            if(Bar.IsOpen)
-                Bar.Close();
-            Bar = new();
-            Bar.Show();
+            if(bar.IsOpen)
+                bar.Close();
+            bar = new();
+            bar.Show();
             PositionAndSize positionAndSize = new PositionAndSize();
             positionAndSize.height = focusHeight;
             positionAndSize.width = focusWidth;
-            Bar.Transparent = Transparent;
-            Bar.OnTop = OnTop;
-            Bar.Setup(positionAndSize, SelectedProcesses.ToArray());
+            bar.Transparent = Transparent;
+            bar.OnTop = OnTop;
+            bar.Setup(positionAndSize, SelectedProcesses.ToArray());
         }
 
-        private void TextBox_GotFocus(object sender, RoutedEventArgs e)
-        {
-            (sender as TextBox).SelectAll();
-        }
+        private void TextBox_GotFocus(object sender, RoutedEventArgs e) => (sender as TextBox).SelectAll();        
 
-        private void TextBox_GotFocus(object sender, MouseButtonEventArgs e)
-        {
-            (sender as TextBox).SelectAll();
-        }
+        private void TextBox_GotFocus(object sender, MouseButtonEventArgs e) => (sender as TextBox).SelectAll();        
 
         private void SelectivelyIgnoreMouseButton(object sender, MouseButtonEventArgs e)
         {
@@ -122,30 +112,11 @@ namespace WinManipulator.FocusBar
             }
         }
 
-        protected void MainWindow_Closed(object sender, EventArgs args)
-        {
-            App.Current.Shutdown();
-        }
+        protected void MainWindow_Closed(object sender, EventArgs args) => App.Current.Shutdown();        
 
-        private void CloseBar(object sender, RoutedEventArgs e)
-        {
-            foreach (var item in SelectedProcesses)
-            {
-            if (test is null)
-                test = new(item, new PositionAndSize() { x= 0, y= 5, width = 200, height = 150});
-            else
-                test.Add(item, new PositionAndSize() { x = test.Pages.Count * 200, y = 5, width = 200, height = 150 });
-            }
-            
-            test.Show();
+        private void CloseBar(object sender, RoutedEventArgs e) => bar.Close();        
 
-            //Bar.Close();
-        }
-
-        private void BringToForeground(object sender, RoutedEventArgs e)
-        {
-            ProcessManagement.BringProcessToForeground(SelectedProcessInUse);
-        }
+        private void BringToForeground(object sender, RoutedEventArgs e) => ProcessManagement.BringProcessToForeground(SelectedProcessInUse);        
 
         private void RemoveProcess(object sender, RoutedEventArgs e)
         {
@@ -160,19 +131,24 @@ namespace WinManipulator.FocusBar
                 if (!SelectedProcesses.Any(x => x.Id == item.Id))
                     SelectedProcesses.Add(item);
             }
-            //UpdateBar();
         }
 
         private void AddProcess(object sender, RoutedEventArgs e)
         {
             SelectedProcesses.Add(SelectedProcess);
-            foreach (var item in SelectedProcesses)
+            SyncProcesses();
+            SelectedProcess = AllProcesses.FirstOrDefault();
+        }
+
+        private void SyncProcesses()
+        {
+            AllProcesses.Clear();
+            foreach (var item in Process.GetProcesses().Where(x => x.MainWindowTitle.Any()))
             {
-                if (AllProcesses.Any(x => x == item))
-                    AllProcesses.Remove(item);
+                if(!SelectedProcesses.Any(x => x.MainWindowTitle == item.MainWindowTitle))
+                    AllProcesses.Add(item);
             }
             SelectedProcess = AllProcesses.FirstOrDefault();
-            //UpdateBar();
         }
 
         private void AddProcess(object sender, KeyEventArgs e)
@@ -180,22 +156,17 @@ namespace WinManipulator.FocusBar
             if (e.Key == Key.Enter)
             {
                 SelectedProcesses.Add(SelectedProcess);
-                foreach (var item in SelectedProcesses)
-                {
-                    if (AllProcesses.Any(x => x == item))
-                        AllProcesses.Remove(item);
-                }
+                SyncProcesses();
                 SelectedProcess = AllProcesses.FirstOrDefault();
-                //UpdateBar();
             }
         }
 
         private void RemoveProcess(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Delete)
-            {
-                AllProcesses = new(Process.GetProcesses());
+            {                
                 SelectedProcesses.Remove(SelectedProcessInUse);
+                SyncProcesses();
             }
         }
 
@@ -203,8 +174,8 @@ namespace WinManipulator.FocusBar
         {
             if (e.Key == Key.Enter)
             {
-                AllProcesses = new(Process.GetProcesses());
                 SelectedProcesses.Remove(SelectedProcessInUse);
+                SyncProcesses();
             }
         }
 
@@ -217,62 +188,13 @@ namespace WinManipulator.FocusBar
                     if (!SelectedProcesses.Any(x => x.Id == item.Id))
                         SelectedProcesses.Add(item);
                 }
-                //UpdateBar();
+                SyncProcesses();
             }
         }
 
         private void RefreshProcesses(object sender, RoutedEventArgs e)
         {
-            AllProcesses = new(Process.GetProcesses().Where(x => x.MainWindowTitle.Any()));
-            foreach (var item in SelectedProcesses)
-            {
-                if (AllProcesses.Any(x => x.Id == item.Id))
-                {
-                    var t = AllProcesses.First(x => x.Id == item.Id);
-                    AllProcesses.Remove(t);
-                }
-            }
+            SyncProcesses();
         }
-
-        private void CheckBoxHandler(object sender, RoutedEventArgs e)
-        {
-            Transparent = !Transparent;
-        }
-
-
-    }
-
-    public static class ProcessManagement
-    {
-        static readonly IntPtr HWND_TOP = new IntPtr(0);
-        internal static void BringProcessToForeground(Process process)
-        {
-            if (process is not null)
-                if (Process.GetProcesses().Any(p => p.Id == process.Id))
-                    BringProcessToFront(Process.GetProcesses().First(p => p.Id == process.Id));
-        }
-        static void BringProcessToFront(Process process)
-        {
-            const int SW_RESTORE = 9;
-            IntPtr handle = process.MainWindowHandle;
-            if (IsIconic(handle))
-            {
-                ShowWindow(handle, SW_RESTORE);
-            }
-
-            SetForegroundWindow(handle);
-        }
-        [DllImport("User32.dll")]
-        private static extern bool IsIconic(IntPtr handle);
-        [DllImport("User32.dll")]
-        private static extern bool ShowWindow(IntPtr handle, int nCmdShow);
-        [DllImport("User32.dll")]
-        private static extern bool SetForegroundWindow(IntPtr handle);
-        [DllImport("user32.dll")]
-        static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
-        public static void SetWindowOfProcessPositionAndSize(Process process, PositionAndSize positionAndSize)
-        {
-            SetWindowPos(process.MainWindowHandle, HWND_TOP, positionAndSize.x, positionAndSize.y, positionAndSize.width, positionAndSize.height, 0);
-        }
-    }
+    }    
 }

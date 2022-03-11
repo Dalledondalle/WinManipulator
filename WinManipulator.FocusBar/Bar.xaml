@@ -12,27 +12,37 @@
         BorderBrush="{Binding TransparentColor, Mode=TwoWay}"
         BorderThickness="0"
         >
-    <!--ShowInTaskbar="False"-->
-
+    <!--ShowInTaskbar="False"-->    
     <Grid>
+      
         <ListBox 
-                 Width="{Binding Width}" 
+                 HorizontalAlignment="Stretch"
                  Height="{Binding Height}"
                  ItemsSource="{Binding ProcessesToWatch}" 
                  SelectedItem="{Binding SelectedProcess, Mode=TwoWay}"
                  VerticalAlignment="Center"
-                 HorizontalAlignment="Center"
                  ScrollViewer.VerticalScrollBarVisibility="Hidden" 
                  ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                  SelectionChanged="SelectProcess"
-                 Padding="0"
+                 Padding="5"
+                 Margin="0,0,-20,0"
                  Background="{Binding TransparentColor, Mode=TwoWay}"
                  BorderBrush="{Binding TransparentColor, Mode=TwoWay}"
                  BorderThickness="0"      
                  VirtualizingStackPanel.VirtualizationMode="Recycling"
                  IsTabStop="False"
                  Focusable="False"
-                 >            
+                 >
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Foreground" Value="Red"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </ListBox.ItemContainerStyle>
             <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>
                     <VirtualizingStackPanel IsItemsHost="True" Orientation="Horizontal"/>
@@ -40,8 +50,8 @@
             </ListBox.ItemsPanel>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Grid Height="{Binding Path=HeightOfProcess}" Width="Auto" Margin="0" >
-                        <Frame Content="{Binding}" />                        
+                    <Grid Height="{Binding Path=HeightOfProcess}" Width="Auto" Margin="4" Background="{Binding TransparentColor, Mode=TwoWay}">
+                        <Frame Content="{Binding}"/>                        
                     </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>

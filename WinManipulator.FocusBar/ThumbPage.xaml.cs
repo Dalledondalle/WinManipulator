@@ -30,7 +30,7 @@ namespace WinManipulator.FocusBar
         IntPtr _selectedWindow = IntPtr.Zero;
         IntPtr _targetHandle, _thumbHandle;
         Rect _targetRect;
-        readonly WindowInteropHelper _wih;
+        //readonly WindowInteropHelper _wih;
         public string WindowToWatch { get; private set; }
         private Process processToLoadOn;
         private Process _process;
@@ -73,7 +73,7 @@ namespace WinManipulator.FocusBar
             SizeChanged += (s, e) => WindowSizeChanged(GetRect());
             _process = Process.GetProcessById(ProcessId);
         }
-
+        //1.778
         public ThumbPage(Process Process, Rect Rect, Process toLoadOn)
         {
             InitializeComponent();
@@ -84,12 +84,16 @@ namespace WinManipulator.FocusBar
             Loaded += (s, e) => Init(toLoadOn.MainWindowHandle, GetRect());
             SizeChanged += (s, e) => WindowSizeChanged(GetRect());
             _process = Process;
+            WidthOfProcess = (Rect.Right - Rect.Left)-10;
+            rect.Left += 2;
+            rect.Right -= 2;            
             HeightOfProcess = Rect.Bottom - Rect.Top;
-            WidthOfProcess = Rect.Right - Rect.Left;
-            rect.Top += 5;
-            rect.Left += 10;
-            rect.Bottom -= 5;
-            rect.Right -= 10;
+            
+            int ratioHeight = (int)(WidthOfProcess / 1.778);
+            int whiteSpace = (int)(HeightOfProcess - ratioHeight) / 2;
+
+            rect.Top = 0;
+            rect.Bottom = ratioHeight;
         }
 
         public IntPtr SelectedWindow
