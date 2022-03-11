@@ -40,6 +40,8 @@ namespace WinManipulator.FocusBar
         public static extern bool UnhookWindowsHookEx(IntPtr hHook);
         [DllImport(DllName, SetLastError = true)]
         public static extern IntPtr CallNextHookEx(IntPtr hHook, int code, IntPtr wParam, IntPtr lParam);
+        [DllImport(DllName, SetLastError = true)]
+        public static extern void keybd_event(byte bVk, byte bScan, int dwFlags, int dwExtraInfo);
 
     }
 }

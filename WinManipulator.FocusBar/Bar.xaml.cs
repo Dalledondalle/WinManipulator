@@ -88,15 +88,15 @@ namespace WinManipulator.FocusBar
 
         private void OnKeyPressed(object sender, GlobalKeyboardHookEventArgs e)
         {
+            if ((Keyboard.GetKeyStates(Key.LWin) & KeyStates.Down) == 0)
+                return;
+
             int keycode = e.KeyboardData.VirtualCode;
             if (!(keycode == (int)VKeys.SPACE || keycode == (int)VKeys.KEY_Z))
                 return;
-            if (e.KeyboardState != GlobalKeyboardHook.KeyboardState.KeyDown)
+            if (e.KeyboardState != KeyboardState.KeyDown)
                 return;
 
-            var winKey = Keyboard.GetKeyStates(Key.LWin);
-            if (winKey == KeyStates.None)
-                return;
 
             switch (keycode)
             {
@@ -110,6 +110,11 @@ namespace WinManipulator.FocusBar
                     break;
             }
             e.Handled = true;
+            //while(Keyboard.GetKeyStates(Key.LWin) != KeyStates.None)
+            //{
+            //    User32.keybd_event(0x5B, 0, 0, 0);
+            //    //User32.keybd_event(0x5B, 0, 2, 0);
+            //}            
         }
 
         void PreviousWindowInList()
@@ -128,7 +133,6 @@ namespace WinManipulator.FocusBar
                         ProcessManagement.BringProcessToForeground(t.Process);
                         SelectedProcess = t;
                     }
-                    SelectedProcess = null;
                 }
             });
         }
@@ -149,7 +153,6 @@ namespace WinManipulator.FocusBar
                         ProcessManagement.BringProcessToForeground(t.Process);
                         SelectedProcess = t;
                     }
-                    SelectedProcess = null;
                 }
             });
         }

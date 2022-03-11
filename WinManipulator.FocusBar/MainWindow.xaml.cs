@@ -83,6 +83,8 @@ namespace WinManipulator.FocusBar
 
         private void OpenBar(object sender, RoutedEventArgs e)
         {
+            if (!SelectedProcesses.Any())
+                return;
             if(bar.IsOpen)
                 bar.Close();
             bar = new();
