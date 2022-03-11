@@ -87,13 +87,16 @@ namespace WinManipulator.FocusBar
 
         private void OpenBar(object sender, RoutedEventArgs e)
         {
+            if(Bar.IsOpen)
+                Bar.Close();
+            Bar = new();
+            Bar.Show();
             PositionAndSize positionAndSize = new PositionAndSize();
             positionAndSize.height = focusHeight;
             positionAndSize.width = focusWidth;
-            Bar.Setup(positionAndSize, SelectedProcesses.ToArray());
             Bar.Transparent = Transparent;
             Bar.OnTop = OnTop;
-            Bar.Show();
+            Bar.Setup(positionAndSize, SelectedProcesses.ToArray());
         }
 
         private void TextBox_GotFocus(object sender, RoutedEventArgs e)
@@ -126,10 +129,13 @@ namespace WinManipulator.FocusBar
 
         private void CloseBar(object sender, RoutedEventArgs e)
         {
+            foreach (var item in SelectedProcesses)
+            {
             if (test is null)
-                test = new(SelectedProcesses[0], new PositionAndSize() { x= 0, y= 0});
+                test = new(item, new PositionAndSize() { x= 0, y= 5, width = 200, height = 150});
             else
-                test.Add(SelectedProcesses[test.Pages.Count], new PositionAndSize() { x = test.Pages.Count * 10, y = test.Pages.Count * 10 });
+                test.Add(item, new PositionAndSize() { x = test.Pages.Count * 200, y = 5, width = 200, height = 150 });
+            }
             
             test.Show();
 

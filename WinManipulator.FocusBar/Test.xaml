@@ -8,7 +8,6 @@
         Title="Test" Height="450" Width="800">
     <Grid>
         <StackPanel>
-            <!--<Frame x:Name="MainFrame" Height="200" Width="Auto" MouseDown="SwitchFrame"/>-->
             <ListBox ItemsSource="{Binding Pages}" Height="450">
                 <ListBox.ItemTemplate>
                     <DataTemplate>

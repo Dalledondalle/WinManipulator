@@ -9,6 +9,6 @@
       Title="ThumbPage">
 
     <Grid>
-        <ListBox ItemsSource="{Binding Windows}" SelectedValuePath="Value" DisplayMemberPath="Key"></ListBox>
+        <ListBox ItemsSource="{Binding Windows}" SelectedItem="{Binding SelectedWindow}" SelectedValuePath="Value" DisplayMemberPath="Key"></ListBox>
     </Grid>
 </Page>

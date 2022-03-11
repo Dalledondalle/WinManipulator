@@ -19,21 +19,41 @@ namespace WinManipulator.FocusBar
     /// Interaction logic for ThumbPage.xaml
     /// </summary>
     public partial class ThumbPage : Page
-    {        
+    {
         public event PropertyChangedEventHandler PropertyChanged;
         public void OnPropertyChanged([CallerMemberName] string PropertyName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
+        public Process Process { get => _process; }
         public ObservableCollection<KeyValuePair<string, IntPtr>> Windows { get; } = new();
         IntPtr _selectedWindow = IntPtr.Zero;
         IntPtr _targetHandle, _thumbHandle;
-        Rect _targetRect;        
+        Rect _targetRect;
         readonly WindowInteropHelper _wih;
         public string WindowToWatch { get; private set; }
         private Process processToLoadOn;
         private Process _process;
-        private int x, y;
+        private Rect rect;
+        private double heightOfProcess;
+        private double widthOfProcess;
+
+        public double HeightOfProcess
+        {
+            get => heightOfProcess; set
+            {
+                heightOfProcess = value;
+                OnPropertyChanged();
+            }
+        }
+        public double WidthOfProcess
+        {
+            get => widthOfProcess; set
+            {
+                widthOfProcess = value;
+                OnPropertyChanged();
+            }
+        }
 
         public ThumbPage(string ProcessName)
         {
@@ -54,16 +74,22 @@ namespace WinManipulator.FocusBar
             _process = Process.GetProcessById(ProcessId);
         }
 
-        public ThumbPage(Process Process, int PosX, int PosY, Process toLoadOn)
+        public ThumbPage(Process Process, Rect Rect, Process toLoadOn)
         {
             InitializeComponent();
+            DataContext = this;
             processToLoadOn = toLoadOn;
             //_wih = new WindowInteropHelper(this);
-            y = PosY;
-            x = PosX;
+            rect = Rect;
             Loaded += (s, e) => Init(toLoadOn.MainWindowHandle, GetRect());
             SizeChanged += (s, e) => WindowSizeChanged(GetRect());
             _process = Process;
+            HeightOfProcess = Rect.Bottom - Rect.Top;
+            WidthOfProcess = Rect.Right - Rect.Left;
+            rect.Top += 5;
+            rect.Left += 10;
+            rect.Bottom -= 5;
+            rect.Right -= 10;
         }
 
         public IntPtr SelectedWindow
@@ -133,15 +159,17 @@ namespace WinManipulator.FocusBar
                 return true;
             }, 0);
 
-            if(Windows.Any(x => x.Value == _process.MainWindowHandle))
-                SelectedWindow = Windows.First(x => x.Value == _process.MainWindowHandle).Value;
-            else if (Windows.Count > 0)
-                SelectedWindow = Windows[0].Value;
+            SelectedWindow = _process.MainWindowHandle;
+            //if(Windows.Any(x => x.Value == _process.MainWindowHandle))
+            //    SelectedWindow = Windows.First(x => x.Value == _process.MainWindowHandle).Value;
+            //else if (Windows.Count > 0)
+            //    SelectedWindow = Windows[0].Value;
         }
 
         Rect GetRect()
         {
-            return new Rect(0, 0, 800, 450);
+            //return new Rect(0, 0, 800, 450);
+            return rect;
         }
 
         void Init(IntPtr Target, Rect Location)

@@ -7,14 +7,18 @@
         mc:Ignorable="d"
         WindowStyle="None"
         AllowsTransparency="True"
-        ShowInTaskbar="False"
         Title="Bar" Height="200" Width="1000"
         Background="{Binding TransparentColor, Mode=TwoWay}"
         BorderBrush="{Binding TransparentColor, Mode=TwoWay}"
         BorderThickness="0"
         >
-    <Grid>        
-        <ListBox ItemsSource="{Binding ProcessesToWatch}" 
+    <!--ShowInTaskbar="False"-->
+
+    <Grid>
+        <ListBox 
+                 Width="{Binding Width}" 
+                 Height="{Binding Height}"
+                 ItemsSource="{Binding ProcessesToWatch}" 
                  SelectedItem="{Binding SelectedProcess, Mode=TwoWay}"
                  VerticalAlignment="Center"
                  HorizontalAlignment="Center"
@@ -36,9 +40,8 @@
             </ListBox.ItemsPanel>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Grid Width="{Binding Width}" Height="{Binding Height}" Margin="-1" >
-                        <Image Source="{Binding ImageSource}"  HorizontalAlignment="Center" VerticalAlignment="Center"></Image>
-                        <!--<Label Foreground="Red" Content="{Binding Process.MainWindowTitle}" HorizontalAlignment="Center" VerticalAlignment="Top" />-->
+                    <Grid Height="{Binding Path=HeightOfProcess}" Width="Auto" Margin="0" >
+                        <Frame Content="{Binding}" />                        
                     </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>

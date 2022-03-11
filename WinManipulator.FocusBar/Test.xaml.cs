@@ -46,7 +46,8 @@ namespace WinManipulator.FocusBar
             thisProcess = Process.GetCurrentProcess();
             InitializeComponent();
             DataContext = this;
-            var t = new ThumbPage(process, positionAndSize.x, positionAndSize.y, thisProcess);
+            Rect rect = new() { Left = positionAndSize.x, Top = positionAndSize.y, Right = positionAndSize.x + positionAndSize.width, Bottom = positionAndSize.y + positionAndSize.height };
+            var t = new ThumbPage(process, rect, thisProcess);
             //MainFrame.Content = t;
             Pages.Add(t);
             //SecFrame.Content = Pages[0];
@@ -62,7 +63,8 @@ namespace WinManipulator.FocusBar
 
         internal void Add(Process process, PositionAndSize positionAndSize)
         {
-            Pages.Add(new ThumbPage(process, positionAndSize.x, positionAndSize.y, thisProcess));
+            Rect rect = new() { Left = positionAndSize.x, Top = positionAndSize.y, Right = positionAndSize.x + positionAndSize.width, Bottom = positionAndSize.y + positionAndSize.height };
+            Pages.Add(new ThumbPage(process, rect, thisProcess));
         }
 
         private void SwitchFrame(object sender, System.Windows.Input.MouseButtonEventArgs e)
