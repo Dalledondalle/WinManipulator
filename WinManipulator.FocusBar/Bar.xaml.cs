@@ -57,7 +57,10 @@ namespace WinManipulator.FocusBar
             set
             {
                 if (value is not null)
+                {
+                    ProcessManagement.BringProcessToForeground(value.Process);
                     SetField(ref selectedProcess, value);
+                }
             }
         }
         public PositionAndSize Workarea { get => workarea; private set => workarea = value; }
@@ -109,17 +112,12 @@ namespace WinManipulator.FocusBar
                 default:
                     break;
             }
-            e.Handled = true;
-            //while(Keyboard.GetKeyStates(Key.LWin) != KeyStates.None)
-            //{
-            //    User32.keybd_event(0x5B, 0, 0, 0);
-            //    //User32.keybd_event(0x5B, 0, 2, 0);
-            //}            
+            e.Handled = true;         
         }
 
         void PreviousWindowInList()
         {
-            Dispatcher.Invoke(() =>
+            var dp = Dispatcher.BeginInvoke(new Action(() =>
             {
                 if (ProcessesToWatch.Any())
                 {
@@ -130,16 +128,17 @@ namespace WinManipulator.FocusBar
                     var t = ProcessesToWatch[i];
                     if (t is not null)
                     {
-                        ProcessManagement.BringProcessToForeground(t.Process);
+                        //ProcessManagement.BringProcessToForeground(t.Process);
                         SelectedProcess = t;
                     }
                 }
-            });
+            }));
+            dp.Wait();
         }
 
         void NextWindowInList()
         {
-            Dispatcher.Invoke(() =>
+            var dp = Dispatcher.BeginInvoke(new Action(() =>
             {
                 if (ProcessesToWatch.Any())
                 {
@@ -150,11 +149,12 @@ namespace WinManipulator.FocusBar
                     var t = ProcessesToWatch[i];
                     if (t is not null)
                     {
-                        ProcessManagement.BringProcessToForeground(t.Process);
+                        //ProcessManagement.BringProcessToForeground(t.Process);
                         SelectedProcess = t;
                     }
                 }
-            });
+            }));
+            dp.Wait();
         }
 
         public void Dispose()
@@ -183,8 +183,8 @@ namespace WinManipulator.FocusBar
         {
             Left = BarSizeAndPosition.x;
             Top = Workarea.height;
-            Width = BarSizeAndPosition.width;
-            Height = BarSizeAndPosition.height;
+            Width = BarSizeAndPosition.width > 0 ? BarSizeAndPosition.width : 0;
+            Height = BarSizeAndPosition.height > 0 ? BarSizeAndPosition.height : 0;
         }
 
         private void ResizeAllWindowsToProcesses(Process[] processes)
@@ -197,7 +197,7 @@ namespace WinManipulator.FocusBar
 
         private void MakeProcessWindows(Process[] processes)
         {
-            int widthOfProcess = (int)(Width / processes.Length) - 20;
+            int widthOfProcess = (int)(Width / processes.Length) - 20;            
             for (int i = 0; i < processes.Length; i++)
             {
                 Rect rect = new Rect() { Top = 0, Left = (widthOfProcess * i) + 10 + (10 * i) - i, Bottom = (int)Height, Right = ((widthOfProcess * i)) + widthOfProcess + 10 + (10 * i) - i };
@@ -219,17 +219,38 @@ namespace WinManipulator.FocusBar
             SetBarSizeAndPosition();
             SetWindowProperties();
             ResizeAllWindowsToProcesses(processes);
-            thisProcess = Process.GetCurrentProcess();
-            MakeProcessWindows(processes);
-            EndSetup();
+            thisProcess = Process.GetCurrentProcess();            
+            EndSetup(processes);
         }
 
-        private void EndSetup()
+        private void EndSetup(Process[] processes)
         {
-            Height = ProcessesToWatch.First().WidthOfProcess / 1.778;
+            SetHeightAndWidthOfBarWindow(processes);
             Top = Workarea.height;
             Topmost = OnTop;
             IsOpen = true;
+            Width = (ProcessesToWatch.First().WidthOfProcess * 1.1) * ProcessesToWatch.Count;
+            Left = (desktopWidth / 2) - (Width / 2);
+        }
+
+        private void SetHeightAndWidthOfBarWindow(Process[] processes)
+        {
+            double possibleHeight = ((int)(Width / processes.Length) - 20) / 1.778;
+
+            if (possibleHeight <= (desktopHeight - taskbarHeight) - Workarea.height)
+            {
+                Height = possibleHeight;            
+            }
+            else
+            {
+                Height = desktopHeight - Workarea.height;                
+            }
+            int widthOfProcess = (int)(Height / 0.5625);
+            for (int i = 0; i < processes.Length; i++)
+            {
+                Rect rect = new Rect() { Top = 0, Left = (widthOfProcess * i) + 10 + (10 * i) - i, Bottom = (int)Height, Right = ((widthOfProcess * i)) + widthOfProcess + 10 + (10 * i) - i };
+                ProcessesToWatch.Add(new ThumbPage(processes[i], rect, thisProcess));
+            }
         }
 
         private void SelectProcess(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
