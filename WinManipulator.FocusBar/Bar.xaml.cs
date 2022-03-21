@@ -182,7 +182,7 @@ namespace WinManipulator.FocusBar
         private void SetWindowProperties()
         {
             Left = BarSizeAndPosition.x;
-            Top = BarSizeAndPosition.y;
+            Top = Workarea.height;
             Width = BarSizeAndPosition.width;
             Height = BarSizeAndPosition.height;
         }
